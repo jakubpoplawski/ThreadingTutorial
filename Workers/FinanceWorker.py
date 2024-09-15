@@ -35,16 +35,17 @@ class FinanceWorker():
 
     def extract_price(self):
         response = requests.get(self.url, headers=self.headers)
-        time.sleep(5)
+        time.sleep(random.random() * 2)
         if response.status_code != 200:
             print('Page unavailable.')
             pass
         else:
             soup = BeautifulSoup(response.text, 'lxml')
-            price = soup.find(
+            read_price = soup.find(
                 'fin-streamer', class_="livePrice yf-mgkamr").text
+            cleaned_price = read_price.replace(",", "")
             try:
-                return float(price)
+                return float(cleaned_price)
             except ValueError:
                 print('Caught value is not a number.')
 
