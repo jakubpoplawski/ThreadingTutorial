@@ -31,7 +31,8 @@ def finance_worker_instance_aos(mocker):
     return finance_worker_instance
 
 
-def test_real_connection_respond(finance_worker_instance):
+def test_real_connection_respond():
+    finance_worker_instance = FinanceWorker('aos')
     response = requests.get(finance_worker_instance.url)
     assert response.status_code == 200
 
