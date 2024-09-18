@@ -14,7 +14,7 @@ def main():
     wiki_worker = WikiWorker()
 
     finance_price_threads = []
-    number_of_finance_workers = 5
+    number_of_finance_workers = 4
 
     for i in range(number_of_finance_workers):
         finance_price_scheduler = FinancePriceScheduler(
