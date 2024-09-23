@@ -5,7 +5,7 @@ import yaml
 from unicodedata import numeric
 
 
-class YamlReader():
+class YamlExecutor():
     def __init__(self, pipeline_location):
         self.pipeline_location = pipeline_location
         self.queues = {}
@@ -30,8 +30,8 @@ class YamlReader():
 
             initialization_parameters = {
                 'input_queue': self.queues[input_queue] if not None else None,
-                'output_queues': [self.queues[output_queues] \
-                                   for output_queue in output_queues] \
+                'output_queue': [self.queues[output_queues] \
+                                   for output_queues in output_queues] \
                                     if output_queues is not None else None
             }
 

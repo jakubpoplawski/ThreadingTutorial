@@ -10,7 +10,9 @@ from sqlalchemy.sql import text
 
 
 class PostgresScheduler(threading.Thread):
-    def __init__(self, input_queue, **kwargs):
+    def __init__(self, input_queue, output_queue, **kwargs):
+        # if 'output_queue' in kwargs:
+        #     kwargs.pop('output_queue')
         super(PostgresScheduler, self).__init__(**kwargs)
         self.input_queue = input_queue
         self.start()
@@ -23,7 +25,10 @@ class PostgresScheduler(threading.Thread):
                 print("Timeout reached in PostgresWorker.")
             if processed_value == 'DONE':
                 break
-            symbol, price, extracted_time = processed_value
+            try:
+                symbol, price, extracted_time = processed_value
+            except ValueError:
+                print(f"Processing error values: {processed_value}")
             postgres_worker = PostgresWorker(symbol, price, extracted_time)
             postgres_worker.insert_into_database()
 
