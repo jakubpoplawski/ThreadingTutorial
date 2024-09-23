@@ -1,0 +1,33 @@
+queues:
+  - name: SymbolQueue
+    description: Contains symbols to be scraped from the finance page.
+
+  - name: PostgresQueue
+    description: Contains symbols, values, and timestamps to be uploaded to postgres database.
+
+workers:
+  - name: WikiWorker
+    description: The class scraps Wikipedia page for symbols of companies.
+    location: workers.WikiWorker
+    class: WikiWorker
+    input_values:
+      - 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+    output_queues:
+      - SymbolQueue
+
+  - name: FinanceWorker
+    description: The class scraps current pricing of stocks based on the inserted company symbol.
+    location: workers.FinanceWorker
+    class: FinancePriceScheduler
+    instances: 4
+    input_values: SymbolQueue
+    output_queues:
+      - PostgresQueue
+
+
+  - name: PostgresWorker
+    description: The class saves back scraped data to a Postgres database.
+    location: workers.PostgresWorker
+    class: PostgresScheduler
+    instances: 2
+    input_values: PostgresQueue

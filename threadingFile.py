@@ -1,11 +1,15 @@
 import time
+import os
+from dotenv import load_dotenv
+from multiprocessing import Queue
+
 from Workers.FinanceWorker import FinancePriceScheduler
 from Workers.WikiWorker import WikiWorker
 from Workers.PostgresWorker import PostgresScheduler
 
-from multiprocessing import Queue
 
 def main():
+    load_dotenv()
     symbol_queue = Queue()
     postgres_queue = Queue()
 
@@ -18,7 +22,7 @@ def main():
 
     for i in range(number_of_finance_workers):
         finance_price_scheduler = FinancePriceScheduler(
-            input_queue=symbol_queue, output_queue=postgres_queue)
+            input_queue=symbol_queue, output_queue=[postgres_queue])
         finance_price_threads.append(finance_price_scheduler)
 
     postgres_threads = []
@@ -37,9 +41,11 @@ def main():
     for i in range(len(finance_price_threads)):
         finance_price_threads[i].join()
 
+    for i in range(len(postgres_threads)):
+        postgres_threads[i].join()
+
     print("Extracting took: ", round(time.time() - scraping_start_time, 1))
 
 
 if __name__ == '__main__':
     main()
-

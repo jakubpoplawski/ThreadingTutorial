@@ -2,8 +2,12 @@ import os
 import random
 import threading
 import time
+from queue import Empty
+
+
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
+
 
 class PostgresScheduler(threading.Thread):
     def __init__(self, input_queue, **kwargs):
@@ -13,12 +17,15 @@ class PostgresScheduler(threading.Thread):
 
     def run(self):
         while True:
-            processed_value = self.input_queue.get()
+            try:
+                processed_value = self.input_queue.get(timeout=20)
+            except Empty:
+                print("Timeout reached in PostgresWorker.")
             if processed_value == 'DONE':
                 break
             symbol, price, extracted_time = processed_value
-            postgresWorker = PostgresWorker(symbol, price, extracted_time)
-            postgresWorker.insert_into_database()
+            postgres_worker = PostgresWorker(symbol, price, extracted_time)
+            postgres_worker.insert_into_database()
 
 
 
@@ -32,11 +39,11 @@ class PostgresWorker():
         self.postgres_host = os.environ.get('postgres_host')
         self.postgres_database = os.environ.get('postgres_database')
         self.postgres_engine = create_engine(
-            f"postgres://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}/{self.postgres_database}")
+            f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}/{self.postgres_database}")
 
 
     def create_insert_query(self):
-        sql_query = """INSERT INTO stock_prices (stock_name, stock_price, extracted_time) 
+        sql_query = """INSERT INTO public.stock_prices (stock_name, stock_price, extracted_time) 
                         VALUES (:symbol, :price, :extracted_time)"""
         return sql_query
 
@@ -46,6 +53,7 @@ class PostgresWorker():
 
         with self.postgres_engine.connect() as sql_connection:
             sql_connection.execute(
-                text(insert_query, {'symbol': self.symbol,
+                text(insert_query), {'symbol': self.symbol,
                                     'price': self.price,
-                                    'extracted_time': self.extracted_time}))
+                                    'extracted_time': self.extracted_time})
+            sql_connection.commit()
