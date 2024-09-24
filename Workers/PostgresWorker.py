@@ -10,7 +10,7 @@ from sqlalchemy.sql import text
 
 
 class PostgresScheduler(threading.Thread):
-    def __init__(self, input_queue, output_queue, **kwargs):
+    def __init__(self, input_queue, output_queue=None, **kwargs):
         # if 'output_queue' in kwargs:
         #     kwargs.pop('output_queue')
         super(PostgresScheduler, self).__init__(**kwargs)

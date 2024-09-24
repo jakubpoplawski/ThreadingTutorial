@@ -21,7 +21,7 @@ def main():
 
     scraping_start_time = time.time()
 
-    wiki_worker = WikiWorker()
+    # wiki_worker = WikiWorker()
 
     # finance_price_threads = []
     # number_of_finance_workers = 4
@@ -38,17 +38,17 @@ def main():
     #     postgres_scheduler = PostgresScheduler(input_queue=postgres_queue)
     #     postgres_threads.append(postgres_scheduler)
 
-    symbol_counter = 0
-    for symbol in wiki_worker.get_companies():
-        yaml_executor.queues['SymbolQueue'].put(symbol)
-        symbol_counter += 1
-        if symbol_counter >= 5:
-            break
+    # symbol_counter = 0
+    # for symbol in wiki_worker.get_companies():
+    #     yaml_executor.queues['SymbolQueue'].put(symbol)
+    #     symbol_counter += 1
+    #     if symbol_counter >= 5:
+    #         break
+    #
+    # for thread_instance in range(20):
+    #     yaml_executor.queues['SymbolQueue'].put('DONE')
 
-    for thread_instance in range(20):
-        yaml_executor.queues['SymbolQueue'].put('DONE')
-
-    yaml_executor.join_workers()
+    # yaml_executor.join_workers()
 
     # for i in range(len(finance_price_threads)):
     #     finance_price_threads[i].join()

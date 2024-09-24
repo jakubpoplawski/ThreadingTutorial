@@ -1,10 +1,41 @@
 import requests
+import threading
+
 from bs4 import BeautifulSoup
 
 
+
+class WikiWorkerScheduler(threading.Thread):
+    def __init__(self, output_queue, input_values, **kwargs):
+        self.input_values = input_values
+
+        temp_queue = output_queue
+        if type(temp_queue) != list:
+            temp_queue = [temp_queue]
+        self.output_queues = temp_queue
+        super(WikiWorkerScheduler, self).__init__(**kwargs)
+        self.start()
+
+    def run(self):
+        for input_value in self.input_values:
+            wiki_worker = WikiWorker(input_value)
+
+            symbol_counter = 0
+            for symbol in wiki_worker.get_companies():
+                for output_queue in self.output_queues:
+                    output_queue.put(symbol)
+                    symbol_counter += 1
+                    if symbol_counter >= 5:
+                        break
+
+        for output_queue in self.output_queues:
+            for i in range(20):
+                output_queue.put('DONE')
+
+
 class WikiWorker():
-    def __init__(self):
-        self.url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+    def __init__(self, url):
+        self.url = url
 
     @staticmethod
     def extract_companies(page_html):
