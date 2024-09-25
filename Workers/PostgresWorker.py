@@ -26,19 +26,21 @@ class PostgresScheduler(threading.Thread):
             if processed_value == 'DONE':
                 break
             try:
-                symbol, price, extracted_time = processed_value
+                symbol, price, extracted_time, thread_id = processed_value
             except ValueError:
                 print(f"Processing error values: {processed_value}")
-            postgres_worker = PostgresWorker(symbol, price, extracted_time)
+            postgres_worker = PostgresWorker(symbol, price,
+                                             extracted_time, fin_thread_id)
             postgres_worker.insert_into_database()
 
 
 
 class PostgresWorker():
-    def __init__(self, symbol, price, extracted_time, **kwargs):
+    def __init__(self, symbol, price, extracted_time, thread_id, **kwargs):
         self.symbol = symbol
         self.price = price
         self.extracted_time = extracted_time
+        self.thread_id = thread_id
         self.postgres_user = os.environ.get('postgres_user')
         self.postgres_password = os.environ.get('postgres_password')
         self.postgres_host = os.environ.get('postgres_host')
@@ -48,8 +50,8 @@ class PostgresWorker():
 
 
     def create_insert_query(self):
-        sql_query = """INSERT INTO public.stock_prices (stock_name, stock_price, extracted_time) 
-                        VALUES (:symbol, :price, :extracted_time)"""
+        sql_query = """INSERT INTO public.stock_prices (stock_name, stock_price, extracted_time, thread_id) 
+                        VALUES (:symbol, :price, :extracted_time, :fin_thread_id)"""
         return sql_query
 
 
@@ -60,5 +62,6 @@ class PostgresWorker():
             sql_connection.execute(
                 text(insert_query), {'symbol': self.symbol,
                                     'price': self.price,
-                                    'extracted_time': self.extracted_time})
+                                    'extracted_time': self.extracted_time,
+                                    'fin_thread_id': self.thread_id})
             sql_connection.commit()

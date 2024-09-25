@@ -39,10 +39,12 @@ class FinancePriceScheduler(threading.Thread):
                 break
             finance_worker = FinanceWorker(symbol=processed_value)
             retrieved_price = finance_worker.extract_price()
+            fin_thread_id = threading.get_native_id()
             for output_queue in self.output_queues:
                 output_values = (processed_value,
                                  retrieved_price,
-                                 datetime. datetime. now(datetime. UTC))
+                                 datetime. datetime. now(datetime. UTC),
+                                 fin_thread_id)
                 output_queue.put(output_values)
             time.sleep(random.random())
 
