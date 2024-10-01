@@ -23,10 +23,11 @@ class PostgresScheduler(threading.Thread):
                 processed_value = self.input_queue.get(timeout=20)
             except Empty:
                 print("Timeout reached in PostgresWorker.")
+                break
             if processed_value == 'DONE':
                 break
             try:
-                symbol, price, extracted_time, thread_id = processed_value
+                symbol, price, extracted_time, fin_thread_id = processed_value
             except ValueError:
                 print(f"Processing error values: {processed_value}")
             postgres_worker = PostgresWorker(symbol, price,
@@ -36,11 +37,11 @@ class PostgresScheduler(threading.Thread):
 
 
 class PostgresWorker():
-    def __init__(self, symbol, price, extracted_time, thread_id, **kwargs):
+    def __init__(self, symbol, price, extracted_time, fin_thread_id, **kwargs):
         self.symbol = symbol
         self.price = price
         self.extracted_time = extracted_time
-        self.thread_id = thread_id
+        self.fin_thread_id = fin_thread_id
         self.postgres_user = os.environ.get('postgres_user')
         self.postgres_password = os.environ.get('postgres_password')
         self.postgres_host = os.environ.get('postgres_host')
@@ -63,5 +64,5 @@ class PostgresWorker():
                 text(insert_query), {'symbol': self.symbol,
                                     'price': self.price,
                                     'extracted_time': self.extracted_time,
-                                    'fin_thread_id': self.thread_id})
+                                    'fin_thread_id': self.fin_thread_id})
             sql_connection.commit()

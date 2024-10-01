@@ -43,7 +43,7 @@ class FinancePriceScheduler(threading.Thread):
             for output_queue in self.output_queues:
                 output_values = (processed_value,
                                  retrieved_price,
-                                 datetime. datetime. now(datetime. UTC),
+                                 datetime.datetime.now(datetime.UTC),
                                  fin_thread_id)
                 output_queue.put(output_values)
             time.sleep(random.random())
@@ -86,13 +86,14 @@ class FinanceWorker():
         driver.execute_script("window.scrollTo(0, 2000);")
         try:
             WebDriverWait(
-                driver, 10).until(EC.element_to_be_clickable((
+                driver, 20).until(EC.element_to_be_clickable((
                 By.XPATH, xpath_scrolldown_locator))).click()
             WebDriverWait(
-                driver, 10).until(EC.element_to_be_clickable((
+                driver, 20).until(EC.element_to_be_clickable((
                 By.XPATH, xpath_button_locator))).click()
         except:
             pass
+
 
     def fetch_element(self, driver, css_element_locator):
         """The function clicks on the refuse cookies button when detected.
@@ -106,7 +107,7 @@ class FinanceWorker():
 
         try:
             WebDriverWait(
-                driver, 10).until(EC.presence_of_element_located((
+                driver, 30).until(EC.presence_of_element_located((
                 By.CSS_SELECTOR, css_element_locator)))
             read_price = driver.find_element(By.CSS_SELECTOR,
                                              css_element_locator).text

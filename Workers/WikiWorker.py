@@ -28,9 +28,9 @@ class WikiWorkerScheduler(threading.Thread):
                     if symbol_counter >= 5:
                         break
 
-        for output_queue in self.output_queues:
-            for i in range(20):
-                output_queue.put('DONE')
+        # for output_queue in self.output_queues:
+        #     for i in range(20):
+        #         output_queue.put('DONE')
 
 
 class WikiWorker():
