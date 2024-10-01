@@ -17,6 +17,7 @@ class YamlExecutor(threading.Thread):
         self.workers = {}
         self.queue_consumers = {}
         self.downstream_queues = {}
+        self.start()
 
     def load_pipeline(self):
         with open(self.pipeline_location, 'r') as readFile:
@@ -70,10 +71,11 @@ class YamlExecutor(threading.Thread):
 
     def run(self):
         self.process_pipeline()
-        total_workers_alive = 0
-        while total_workers_alive != 0:
+
+        while True:
             total_workers_alive = 0
             worker_statistics = []
+            workers_to_delete = []
             for worker_name in self.workers:
                 total_workers_threads_alive = 0
                 for worker_thread in self.workers[worker_name]:
@@ -81,14 +83,21 @@ class YamlExecutor(threading.Thread):
                         total_workers_threads_alive += 1
                 total_workers_alive += total_workers_threads_alive
                 if total_workers_threads_alive == 0:
-                    if self.downstream_queues[worker_name] is None:
+                    if self.downstream_queues[worker_name] is not None:
                         for output_queue in self.downstream_queues[worker_name]:
                             number_of_consumers = self.queue_consumers[output_queue]
                             for i in range(number_of_consumers):
                                 self.queues[output_queue].put('DONE')
 
-                    del self.workers[worker_name]
+                    workers_to_delete.append(worker_name)
 
-                worker_statistics.append([worker_name, total_workers_alive])
+                worker_statistics.append([worker_name, total_workers_threads_alive])
             print(worker_statistics)
+            if total_workers_alive == 0:
+                break
+
+            for worker_name in workers_to_delete:
+                del self.workers[worker_name]
+
+
             time.sleep(5)

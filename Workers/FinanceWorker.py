@@ -17,7 +17,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class FinancePriceScheduler(threading.Thread):
-    def __init__(self, input_queue, output_queue, **kwargs):
+    def __init__(self, output_queue, input_queue, **kwargs):
         super(FinancePriceScheduler, self).__init__(**kwargs)
         self.input_queue = input_queue
         temp_queue = output_queue
@@ -34,8 +34,8 @@ class FinancePriceScheduler(threading.Thread):
                 print("Timeout reached in FinanceWorker.")
                 break
             if processed_value == 'DONE':
-                for output_queue in self.output_queues:
-                    output_queue.put('None')
+                # for output_queue in self.output_queues:
+                #     output_queue.put('None')
                 break
             finance_worker = FinanceWorker(symbol=processed_value)
             retrieved_price = finance_worker.extract_price()

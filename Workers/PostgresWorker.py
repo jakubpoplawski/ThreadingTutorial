@@ -20,7 +20,7 @@ class PostgresScheduler(threading.Thread):
     def run(self):
         while True:
             try:
-                processed_value = self.input_queue.get(timeout=20)
+                processed_value = self.input_queue.get(timeout=30)
             except Empty:
                 print("Timeout reached in PostgresWorker.")
                 break
@@ -51,7 +51,7 @@ class PostgresWorker():
 
 
     def create_insert_query(self):
-        sql_query = """INSERT INTO public.stock_prices (stock_name, stock_price, extracted_time, thread_id) 
+        sql_query = """INSERT INTO public.stock_prices (stock_name, stock_price, extracted_time, fin_thread_id) 
                         VALUES (:symbol, :price, :extracted_time, :fin_thread_id)"""
         return sql_query
 
