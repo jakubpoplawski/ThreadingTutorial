@@ -29,5 +29,5 @@ workers:
     description: The class saves back scraped data to a Postgres database.
     location: Workers.PostgresWorker
     class: PostgresScheduler
-    instances: 2
+    instances: 1
     input_queue: PostgresQueue

@@ -11,7 +11,7 @@ def main():
         pipeline_location='Pipelines/wiki_fin_scraper.yaml')
 
     scraping_start_time = time.time()
-    yaml_executor.start()
+    # yaml_executor.start()
     #yaml_executor.process_pipeline()
 
 

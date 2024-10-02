@@ -17,6 +17,7 @@ class YamlExecutor(threading.Thread):
         self.workers = {}
         self.queue_consumers = {}
         self.downstream_queues = {}
+        self.start()
 
     def load_pipeline(self):
         with open(self.pipeline_location, 'r') as readFile:
@@ -38,6 +39,7 @@ class YamlExecutor(threading.Thread):
 
             instances_number = worker.get('instances', 1)
 
+            # self.downstream_queues[worker_name] = [self.queues[output_queue] for output_queue in output_queues]
             self.downstream_queues[worker_name] = output_queues
             if input_queue is not None:
                 self.queue_consumers[input_queue] = instances_number
@@ -46,6 +48,7 @@ class YamlExecutor(threading.Thread):
             if input_values is not None:
                 initialization_parameters['input_values'] = input_values
             if output_queues is not None:
+                print(output_queues)
                 initialization_parameters['output_queue'] = \
                 [self.queues[output_queue] for output_queue in output_queues]
             if input_queue is not None:
@@ -70,10 +73,11 @@ class YamlExecutor(threading.Thread):
 
     def run(self):
         self.process_pipeline()
-        total_workers_alive = 0
-        while total_workers_alive != 0:
+
+        while True:
             total_workers_alive = 0
             worker_statistics = []
+            workers_to_delete = []
             for worker_name in self.workers:
                 total_workers_threads_alive = 0
                 for worker_thread in self.workers[worker_name]:
@@ -81,14 +85,24 @@ class YamlExecutor(threading.Thread):
                         total_workers_threads_alive += 1
                 total_workers_alive += total_workers_threads_alive
                 if total_workers_threads_alive == 0:
-                    if self.downstream_queues[worker_name] is None:
+                    if self.downstream_queues[worker_name] is not None:
                         for output_queue in self.downstream_queues[worker_name]:
                             number_of_consumers = self.queue_consumers[output_queue]
                             for i in range(number_of_consumers):
                                 self.queues[output_queue].put('DONE')
 
-                    del self.workers[worker_name]
 
-                worker_statistics.append([worker_name, total_workers_alive])
+                worker_statistics.append([worker_name, total_workers_threads_alive])
             print(worker_statistics)
-            time.sleep(5)
+            if total_workers_alive == 0:
+                break
+
+            queue_stats = []
+            for queue in self.queues:
+                queue_stats.append([queue, self.queues[queue].qsize()])
+
+            print(queue_stats)
+
+            for worker_name in workers_to_delete:
+                del self.workers[worker_name]
+            time.sleep(2)
