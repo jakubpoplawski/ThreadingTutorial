@@ -133,3 +133,7 @@ class FinanceWorker():
             return float(cleaned_price)
         except ValueError:
             print('Caught value is not a number.')
+
+
+#
+# Errored out link format https://finance.yahoo.com/lookup/?s=MMM
