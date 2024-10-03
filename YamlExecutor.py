@@ -87,7 +87,8 @@ class YamlExecutor(threading.Thread):
                 if total_workers_threads_alive == 0:
                     if self.downstream_queues[worker_name] is not None:
                         for output_queue in self.downstream_queues[worker_name]:
-                            number_of_consumers = self.queue_consumers[output_queue]
+                            number_of_consumers = \
+                            self.queue_consumers[output_queue]
                             for i in range(number_of_consumers):
                                 self.queues[output_queue].put('DONE')
 
@@ -101,6 +102,7 @@ class YamlExecutor(threading.Thread):
             for queue in self.queues:
                 queue_stats.append([queue, self.queues[queue].qsize()])
 
+            # why this number is constantly growing
             print(queue_stats)
 
             for worker_name in workers_to_delete:

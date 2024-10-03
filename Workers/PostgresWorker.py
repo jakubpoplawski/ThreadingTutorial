@@ -20,7 +20,7 @@ class PostgresScheduler(threading.Thread):
     def run(self):
         while True:
             try:
-                processed_value = self.input_queue.get(timeout=2000)
+                processed_value = self.input_queue.get(timeout=20)
             except Empty:
                 print("Timeout reached in PostgresWorker.")
                 break

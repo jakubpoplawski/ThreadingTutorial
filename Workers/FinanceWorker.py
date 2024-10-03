@@ -67,7 +67,7 @@ class FinanceWorker():
         driverpath = pathlib.Path(resource_path('./ChromeDriver/chromedriver.exe'))
 
         chrome_options = Options()
-        #chrome_options.add_argument("--headless=new")
+        chrome_options.add_argument("--headless=new")
         chrome_options.add_argument(f"--user-agent={user_agent}")
 
         driver = webdriver.Chrome(service=Service(driverpath),
@@ -88,10 +88,10 @@ class FinanceWorker():
         driver.execute_script("window.scrollTo(0, 2000);")
         try:
             WebDriverWait(
-                driver, 2).until(EC.element_to_be_clickable((
+                driver, 10).until(EC.element_to_be_clickable((
                 By.XPATH, xpath_scrolldown_locator))).click()
             WebDriverWait(
-                driver, 2).until(EC.element_to_be_clickable((
+                driver, 10).until(EC.element_to_be_clickable((
                 By.XPATH, xpath_button_locator))).click()
         except:
             pass
@@ -109,7 +109,7 @@ class FinanceWorker():
 
         try:
             WebDriverWait(
-                driver, 3).until(EC.presence_of_element_located((
+                driver, 10).until(EC.presence_of_element_located((
                 By.CSS_SELECTOR, css_element_locator)))
             read_price = driver.find_element(By.CSS_SELECTOR,
                                              css_element_locator).text
